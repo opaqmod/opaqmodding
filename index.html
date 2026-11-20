@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPAQ Modding — Faces & Mods PES 2021 / Football Life</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        ink: '#111111',
+                        surface: '#F8F9FA',
+                        hairline: '#E5E5E5',
+                        aqua: {
+                            DEFAULT: '#0D9488',
+                            light: '#14B8A6',
+                            tint: '#F0FDFA'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FFFFFF;
+            color: #111111;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Ocultar scrollbar en barra horizontal de carpetas manteniendo scroll táctil */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Transición sutil para modales */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-enter {
+            animation: fadeSlideUp 0.18s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-[#0D9488] selection:text-white">
+
+    <!-- =====================================================================
+         1. BARRA DE NAVEGACIÓN SUPERIOR (EDITORIAL & MINIMALISTA)
+         ===================================================================== -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#E5E5E5]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between py-4 gap-3.5">
+                
+                <!-- Marca OPAQ Modding -->
+                <div class="flex items-center justify-between">
+                    <a href="#" onclick="resetFilters(event)" class="flex items-center gap-2.5 group">
+                        <span class="w-2.5 h-2.5 rounded-full bg-[#111111] group-hover:bg-[#0D9488] transition-colors"></span>
+                        <span class="font-bold tracking-tight text-lg text-[#111111]">
+                            OPAQ <span class="font-normal text-zinc-500">Modding</span>
+                        </span>
+                    </a>
+
+                    <!-- Botones rápidos en móvil -->
+                    <div class="flex md:hidden items-center gap-1.5">
+                        <button onclick="openUploadModal()" class="px-2.5 py-1.5 bg-[#111111] text-white text-xs font-medium rounded hover:bg-zinc-800 transition-colors">
+                            + Subir
+                        </button>
+                        <button onclick="openRequestModal()" class="px-2.5 py-1.5 border border-[#E5E5E5] text-[#111111] text-xs font-medium rounded hover:border-[#111111] transition-colors">
+                            Pedir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buscador + Acciones de Gestión -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full md:w-auto">
+                    
+                    <!-- Input Buscador -->
+                    <div class="relative flex-1 md:w-64 lg:w-72">
+                        <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Buscar jugador, club o ID..." 
+                            class="w-full pl-9 pr-8 py-1.5 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm text-[#111111] placeholder-zinc-400 focus:outline-none focus:bg-white focus:border-[#111111] transition-colors"
+                        >
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#111111]">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Botón + Nueva Carpeta -->
+                    <button onclick="toggleNewFolderInput()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-[#111111] border border-[#E5E5E5] hover:border-[#111111] text-xs font-medium rounded transition-colors whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5 text-[#0D9488]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                        + Nueva Carpeta
+                    </button>
+
+                    <!-- Botón + Subir Face -->
+                    <button onclick="openUploadModal()" class="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#111111] text-white hover:bg-zinc-800 text-xs font-medium rounded transition-colors whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5 text-[#14B8A6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Subir Face
+                    </button>
+
+                    <!-- Botón Pedir Face -->
+                    <button onclick="openRequestModal()" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F8F9FA] text-zinc-700 hover:text-[#111111] border border-[#E5E5E5] text-xs font-medium rounded transition-colors whitespace-nowrap">
+                        Pedir Face
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =====================================================================
+         2. ENCABEZADO EDITORIAL COMPACTO
+         ===================================================================== -->
+    <section class="border-b border-[#E5E5E5] bg-[#F8F9FA]/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 text-xs font-mono text-zinc-500 mb-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#0D9488]"></span>
+                        <span>eFootball PES 2021 / SP Football Life</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111]">
+                        Archivo de Faces & Facepacks
+                    </h1>
+                    <p class="text-sm text-zinc-500 mt-1.5 max-w-xl">
+                        Modelado facial 3D y texturas de alta resolución. Organizado por carpetas para instalación directa vía Sider o CPK.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-4 text-xs text-zinc-500 font-mono">
+                    <span id="totalFoldersStat">0 Carpetas</span>
+                    <span>•</span>
+                    <span id="totalFacesStat">0 Faces</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         3. GESTOR DE CARPETAS / CATEGORÍAS + CATÁLOGO
+         ===================================================================== -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Barra de Carpetas Interactiva -->
+        <div class="pb-5 border-b border-[#E5E5E5]">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Directorio / Carpetas</span>
+                <span class="text-[11px] text-zinc-400 hidden sm:inline">Pasa el cursor sobre una carpeta para editar o eliminar</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2" id="foldersContainer">
+                <!-- Las carpetas se renderizan dinámicamente aquí -->
+            </div>
+
+            <!-- Input Inline para Crear Nueva Carpeta (Ej: Serie A) -->
+            <div id="newFolderBar" class="hidden mt-3 p-3 bg-[#F8F9FA] border border-[#E5E5E5] rounded-md flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-md">
+                <div class="flex items-center gap-2 flex-1">
+                    <svg class="w-4 h-4 text-[#0D9488] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                    <input 
+                        type="text" 
+                        id="newFolderNameInput" 
+                        placeholder="Nombre de carpeta (ej. Serie A)..." 
+                        class="w-full bg-white border border-[#E5E5E5] rounded px-2.5 py-1.5 text-xs text-[#111111] focus:outline-none focus:border-[#111111]"
+                        onkeydown="handleNewFolderKey(event)"
+                    >
+                </div>
+                <div class="flex items-center gap-1.5 justify-end">
+                    <button onclick="createFolder()" class="px-3 py-1.5 bg-[#111111] text-white text-xs font-medium rounded hover:bg-zinc-800 transition-colors">
+                        Crear
+                    </button>
+                    <button onclick="toggleNewFolderInput(false)" class="px-2.5 py-1.5 text-xs text-zinc-500 hover:text-[#111111]">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra secundaria: Contador de resultados y orden -->
+        <div class="flex items-center justify-between py-4">
+            <div class="flex items-center gap-2">
+                <span id="currentFolderHeading" class="text-sm font-semibold text-[#111111]">Todas las faces</span>
+                <span id="filteredCountBadge" class="px-2 py-0.5 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-xs font-mono text-zinc-600">0</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <label for="sortSelect" class="text-xs text-zinc-400 hidden sm:inline">Orden:</label>
+                <select id="sortSelect" onchange="renderCatalog()" class="bg-white border border-[#E5E5E5] text-[#111111] text-xs rounded px-2.5 py-1.5 focus:outline-none focus:border-[#111111]">
+                    <option value="recent">Más recientes</option>
+                    <option value="alpha">Nombre (A–Z)</option>
+                    <option value="id">ID PES</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Grid de Tarjetas Minimalistas -->
+        <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-2">
+            <!-- Tarjetas generadas por JS -->
+        </div>
+
+        <!-- Estado Vacío -->
+        <div id="emptyState" class="hidden py-16 text-center border border-dashed border-[#E5E5E5] rounded-lg mt-4 bg-[#F8F9FA]/40">
+            <svg class="w-8 h-8 text-zinc-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            <p class="text-sm font-medium text-[#111111]">No hay faces en esta vista</p>
+            <p class="text-xs text-zinc-500 mt-1 mb-4">Puedes subir una face nueva a esta carpeta o limpiar los filtros actuales.</p>
+            <div class="flex items-center justify-center gap-2.5">
+                <button onclick="openUploadModal()" class="px-3.5 py-1.5 bg-[#111111] text-white text-xs font-medium rounded hover:bg-zinc-800 transition-colors">
+                    + Subir Face aquí
+                </button>
+                <button onclick="resetFilters()" class="px-3.5 py-1.5 bg-white border border-[#E5E5E5] text-xs font-medium rounded hover:border-[#111111] transition-colors">
+                    Ver todas
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- =====================================================================
+         4. FOOTER MINIMALISTA
+         ===================================================================== -->
+    <footer class="border-t border-[#E5E5E5] bg-[#F8F9FA] mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+            <div class="flex items-center gap-2">
+                <span class="font-semibold text-[#111111]">OPAQ Modding</span>
+                <span>—</span>
+                <span>Catálogo PES 2021 & Football Life</span>
+            </div>
+
+            <div class="flex items-center gap-5">
+                <button onclick="openRequestModal()" class="hover:text-[#111111] transition-colors">Solicitar Face</button>
+                <button onclick="resetDemoData()" class="text-zinc-400 hover:text-[#111111] transition-colors" title="Restaurar carpetas y faces iniciales">
+                    Restaurar demo
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- =====================================================================
+         5. MODAL: SUBIR / EDITAR FACE
+         ===================================================================== -->
+    <div id="uploadModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-lg border border-[#E5E5E5] shadow-xl overflow-hidden modal-enter my-8">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-[#E5E5E5]">
+                <h2 id="uploadModalTitle" class="text-sm font-bold text-[#111111]">Subir Nueva Face al Catálogo</h2>
+                <button onclick="closeUploadModal()" class="text-zinc-400 hover:text-[#111111] p-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form id="faceForm" onsubmit="saveFaceEntry(event)" class="p-6 space-y-4">
+                <input type="hidden" id="editFaceId">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">Nombre del Jugador / Pack *</label>
+                        <input type="text" id="formName" required placeholder="Ej. Paulo Dybala" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">PES / Football Life ID *</label>
+                        <input type="text" id="formPesId" required placeholder="Ej. 47179" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm font-mono focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">Club / Selección *</label>
+                        <input type="text" id="formClub" required placeholder="Ej. AS Roma" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">Carpeta / Categoría *</label>
+                        <select id="formFolder" required class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                            <!-- Opciones pobladas dinámicamente desde las carpetas -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Imagen Preview (URL o Archivo local) -->
+                <div>
+                    <label class="block text-xs font-medium text-[#111111] mb-1">Imagen de Vista Previa (Render Blender / In-Game)</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="formImageUrl" placeholder="Pega URL de imagen o sube archivo..." class="flex-1 px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                        <label class="cursor-pointer px-3 py-2 bg-white border border-[#E5E5E5] hover:border-[#111111] rounded text-xs font-medium text-[#111111] text-center whitespace-nowrap transition-colors">
+                            Subir archivo
+                            <input type="file" id="formImageFile" accept="image/*" class="hidden" onchange="handleLocalImageUpload(event)">
+                        </label>
+                    </div>
+                    <p class="text-[11px] text-zinc-400 mt-1">Si lo dejas vacío, se generará una vista previa tipográfica minimalista automáticamente.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">Enlace de Descarga</label>
+                        <input type="url" id="formDownloadUrl" placeholder="https://mediafire.com/..." class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">Peso del Archivo</label>
+                        <input type="text" id="formSize" placeholder="Ej. 16.5 MB" value="16.0 MB" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm font-mono focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-[#111111] mb-1">Notas Técnicas</label>
+                    <textarea id="formNotes" rows="2" placeholder="Ej. Head 3D esculpida + textura facial 2048x2048 y peinado actualizado." class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]"></textarea>
+                </div>
+
+                <div class="pt-3 border-t border-[#E5E5E5] flex items-center justify-end gap-2.5">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-[#111111]">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-[#111111] text-white text-xs font-medium rounded hover:bg-zinc-800 transition-colors">
+                        Guardar en Catálogo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         6. MODAL: DETALLE TÉCNICO & DESCARGA DE FACE
+         ===================================================================== -->
+    <div id="detailModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-2xl rounded-lg border border-[#E5E5E5] shadow-xl overflow-hidden modal-enter my-8">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-3.5 border-b border-[#E5E5E5] bg-[#F8F9FA]">
+                <div class="flex items-center gap-2 text-xs">
+                    <span id="detailFolderBadge" class="px-2 py-0.5 bg-white border border-[#E5E5E5] rounded font-medium text-[#111111]">
+                        LaLiga
+                    </span>
+                    <span class="text-zinc-300">/</span>
+                    <span id="detailDate" class="font-mono text-zinc-500">2026</span>
+                </div>
+                <button onclick="closeDetailModal()" class="text-zinc-400 hover:text-[#111111] p-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Contenido -->
+            <div class="p-6 sm:p-8">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Preview 1:1 -->
+                    <div id="detailPreviewContainer" class="sm:col-span-5 aspect-square rounded border border-[#E5E5E5] bg-[#F8F9FA] overflow-hidden flex items-center justify-center">
+                        <!-- Imagen o placeholder minimalista -->
+                    </div>
+
+                    <!-- Datos -->
+                    <div class="sm:col-span-7 flex flex-col justify-between">
+                        <div>
+                            <p id="detailClub" class="text-xs font-medium text-zinc-500 mb-0.5">FC Barcelona</p>
+                            <h2 id="detailName" class="text-2xl font-bold tracking-tight text-[#111111] mb-4">
+                                Lamine Yamal
+                            </h2>
+
+                            <!-- ID Copiable -->
+                            <div class="flex items-center justify-between px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded mb-4">
+                                <div>
+                                    <span class="text-[10px] font-mono uppercase text-zinc-400 block">PES / FL ID</span>
+                                    <span id="detailPesId" class="font-mono text-sm font-semibold text-[#111111]">158492</span>
+                                </div>
+                                <button onclick="copyDetailId()" class="px-2.5 py-1 bg-white border border-[#E5E5E5] hover:border-[#111111] rounded text-xs font-medium text-[#111111] flex items-center gap-1.5 transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-[#0D9488]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                    <span id="copyIdLabel">Copiar ID</span>
+                                </button>
+                            </div>
+
+                            <p id="detailNotes" class="text-sm text-zinc-600 leading-relaxed mb-5">
+                                Notas técnicas del mod.
+                            </p>
+                        </div>
+
+                        <!-- Botón Principal Descarga -->
+                        <div class="space-y-2">
+                            <a id="detailDownloadBtn" href="#" target="_blank" onclick="handleDownloadClick(event)" class="w-full py-2.5 px-4 bg-[#111111] hover:bg-zinc-800 text-white text-xs font-medium rounded flex items-center justify-center gap-2 transition-colors">
+                                <svg class="w-4 h-4 text-[#14B8A6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                <span>Descargar Archivo</span>
+                                <span id="detailFileSize" class="font-mono text-zinc-400">(16.5 MB)</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestañas de Ruta de Instalación -->
+                <div class="mt-6 pt-5 border-t border-[#E5E5E5]">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <div class="flex items-center gap-1.5">
+                            <button id="btnTabSider" onclick="setInstallTab('sider')" class="px-2.5 py-1 text-xs font-medium rounded bg-[#111111] text-white">
+                                Sider (livecpk)
+                            </button>
+                            <button id="btnTabCpk" onclick="setInstallTab('cpk')" class="px-2.5 py-1 text-xs font-medium rounded bg-[#F8F9FA] text-zinc-600 hover:text-[#111111]">
+                                Archivo .CPK
+                            </button>
+                        </div>
+
+                        <!-- Controles de Edición / Eliminación del item -->
+                        <div class="flex items-center gap-3 text-xs">
+                            <button onclick="editCurrentFace()" class="text-zinc-500 hover:text-[#111111] transition-colors">Editar</button>
+                            <button onclick="deleteCurrentFace()" class="text-zinc-400 hover:text-red-600 transition-colors">Eliminar</button>
+                        </div>
+                    </div>
+
+                    <div id="installPathBox" class="p-3 bg-[#F8F9FA] border border-[#E5E5E5] rounded font-mono text-xs text-zinc-700 overflow-x-auto">
+                        <!-- Ruta generada dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         7. MODAL: RENOMBRAR CARPETA
+         ===================================================================== -->
+    <div id="renameFolderModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-lg border border-[#E5E5E5] shadow-xl p-5 modal-enter">
+            <h3 class="text-sm font-bold text-[#111111] mb-1">Renombrar Carpeta</h3>
+            <p class="text-xs text-zinc-500 mb-4">Todas las faces dentro de esta carpeta se actualizarán automáticamente.</p>
+            <form onsubmit="confirmRenameFolder(event)">
+                <input type="text" id="renameFolderInput" required class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm text-[#111111] focus:outline-none focus:bg-white focus:border-[#111111] mb-4">
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeRenameFolderModal()" class="px-3 py-1.5 text-xs text-zinc-500 hover:text-[#111111]">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 bg-[#111111] text-white text-xs font-medium rounded hover:bg-zinc-800">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         8. MODAL: PEDIR FACE
+         ===================================================================== -->
+    <div id="requestModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-lg border border-[#E5E5E5] shadow-xl overflow-hidden modal-enter">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-[#E5E5E5]">
+                <h3 class="text-sm font-bold text-[#111111]">Solicitar Nueva Face</h3>
+                <button onclick="closeRequestModal()" class="text-zinc-400 hover:text-[#111111]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form onsubmit="submitRequest(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-[#111111] mb-1">Jugador *</label>
+                    <input type="text" required placeholder="Nombre completo del jugador" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">Club / Liga *</label>
+                        <input type="text" required placeholder="Ej. Serie A / Milan" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#111111] mb-1">ID (Opcional)</label>
+                        <input type="text" placeholder="Ej. 114290" class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm font-mono focus:outline-none focus:bg-white focus:border-[#111111]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-[#111111] mb-1">Referencia o Comentario</label>
+                    <input type="text" placeholder="Peinado actual, versión, etc." class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E5E5E5] rounded text-sm focus:outline-none focus:bg-white focus:border-[#111111]">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeRequestModal()" class="px-3.5 py-2 text-xs text-zinc-500 hover:text-[#111111]">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-[#111111] text-white text-xs font-medium rounded hover:bg-zinc-800">Enviar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         9. TOAST MINIMALISTA
+         ===================================================================== -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-16 opacity-0 transition-all duration-200 pointer-events-none">
+        <div class="bg-[#111111] text-white px-4 py-2.5 rounded shadow-lg text-xs font-medium flex items-center gap-2.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"></span>
+            <span id="toastText">Acción completada</span>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         LÓGICA DE APLICACIÓN (LOCALSTORAGE, CARPETAS Y CRUD DE FACES)
+         ===================================================================== -->
+    <script>
+        const STORAGE_KEY_FOLDERS = 'opaq_modding_folders_v1';
+        const STORAGE_KEY_FACES = 'opaq_modding_faces_v1';
+
+        // Carpetas iniciales por defecto
+        const defaultFolders = [
+            "LaLiga",
+            "Premier League",
+            "Liga Chilena",
+            "Leyendas",
+            "Facepacks"
+        ];
+
+        // Datos de muestra limpios y realistas
+        const defaultFaces = [
+            {
+                id: 101,
+                name: "Lamine Yamal",
+                club: "FC Barcelona",
+                folder: "LaLiga",
+                pesId: "158492",
+                imageUrl: "",
+                downloadUrl: "",
+                size: "17.4 MB",
+                date: "2026-11-18",
+                notes: "Head 3D esculpida en Blender + textura de piel 2048x2048 y peinado actualizado."
+            },
+            {
+                id: 102,
+                name: "Cole Palmer",
+                club: "Chelsea FC",
+                folder: "Premier League",
+                pesId: "139482",
+                imageUrl: "",
+                downloadUrl: "",
+                size: "16.8 MB",
+                date: "2026-11-15",
+                notes: "Nueva geometría facial y shader de iluminación optimizado para Fox Engine."
+            },
+            {
+                id: 103,
+                name: "Carlos Palacios",
+                club: "Colo-Colo",
+                folder: "Liga Chilena",
+                pesId: "136710",
+                imageUrl: "",
+                downloadUrl: "",
+                size: "15.2 MB",
+                date: "2026-11-12",
+                notes: "Modelado completo desde cero, incluye tatuajes de cuello y perfil de barba actualizado."
+            },
+            {
+                id: 104,
+                name: "Jude Bellingham",
+                club: "Real Madrid CF",
+                folder: "LaLiga",
+                pesId: "132845",
+                imageUrl: "",
+                downloadUrl: "",
+                size: "18.1 MB",
+                date: "2026-11-09",
+                notes: "Textura facial HD con poros detallados y corte fade actualizado."
+            },
+            {
+                id: 105,
+                name: "Arturo Vidal (2015)",
+                club: "Selección Chile",
+                folder: "Leyendas",
+                pesId: "36768",
+                imageUrl: "",
+                downloadUrl: "",
+                size: "18.9 MB",
+                date: "2026-11-05",
+                notes: "Versión clásica Copa América 2015 con mohicano esculpido y textura de alta definición."
+            },
+            {
+                id: 106,
+                name: "Premier Wonderkids Pack",
+                club: "6 Jugadores Incluidos",
+                folder: "Facepacks",
+                pesId: "PACK-PL01",
+                imageUrl: "",
+                downloadUrl: "",
+                size: "94.0 MB",
+                date: "2026-11-01",
+                notes: "Pack listo para Sider con 6 promesas de Premier League ordenadas por carpeta de ID."
+            }
+        ];
+
+        // Estado en memoria
+        let folders = [];
+        let faces = [];
+        let activeFolder = 'Todas';
+        let searchQuery = '';
+        let selectedFaceId = null;
+        let folderBeingRenamed = null;
+
+        // Cargar datos desde localStorage o inicializar demo
+        function loadData() {
+            const savedFolders = localStorage.getItem(STORAGE_KEY_FOLDERS);
+            const savedFaces = localStorage.getItem(STORAGE_KEY_FACES);
+
+            folders = savedFolders ? JSON.parse(savedFolders) : [...defaultFolders];
+            faces = savedFaces ? JSON.parse(savedFaces) : [...defaultFaces];
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY_FOLDERS, JSON.stringify(folders));
+            localStorage.setItem(STORAGE_KEY_FACES, JSON.stringify(faces));
+            updateGlobalStats();
+        }
+
+        function updateGlobalStats() {
+            document.getElementById('totalFoldersStat').textContent = `${folders.length} ${folders.length === 1 ? 'Carpeta' : 'Carpetas'}`;
+            document.getElementById('totalFacesStat').textContent = `${faces.length} ${faces.length === 1 ? 'Face' : 'Faces'}`;
+        }
+
+        // =====================================================================
+        // GESTIÓN DE CARPETAS (CREAR, RENOMBRAR, ELIMINAR, FILTRAR)
+        // =====================================================================
+        function renderFolders() {
+            const container = document.getElementById('foldersContainer');
+            
+            // Botón "Todas"
+            const allActive = activeFolder === 'Todas';
+            let html = `
+                <button onclick="selectFolder('Todas')" class="inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
+                    allActive 
+                    ? 'bg-[#111111] text-white border-[#111111]' 
+                    : 'bg-white text-zinc-700 border-[#E5E5E5] hover:border-[#111111]'
+                }">
+                    <span>Todas</span>
+                    <span class="font-mono text-[11px] ${allActive ? 'text-zinc-400' : 'text-zinc-400'}">${faces.length}</span>
+                </button>
+            `;
+
+            // Carpetas dinámicas
+            folders.forEach(folderName => {
+                const count = faces.filter(f => f.folder === folderName).length;
+                const isActive = activeFolder === folderName;
+                const safeName = folderName.replace(/'/g, "\\'");
+
+                html += `
+                    <div class="group inline-flex items-center rounded border transition-colors ${
+                        isActive 
+                        ? 'bg-[#111111] text-white border-[#111111]' 
+                        : 'bg-[#F8F9FA] text-[#111111] border-[#E5E5E5] hover:border-[#111111] hover:bg-white'
+                    }">
+                        <button onclick="selectFolder('${safeName}')" class="inline-flex items-center gap-2 pl-3 pr-2 py-1.5 text-xs font-medium">
+                            <svg class="w-3.5 h-3.5 ${isActive ? 'text-[#14B8A6]' : 'text-zinc-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                            </svg>
+                            <span>${folderName}</span>
+                            <span class="font-mono text-[11px] text-zinc-400">${count}</span>
+                        </button>
+
+                        <!-- Botones sutiles Editar / Eliminar carpeta -->
+                        <div class="flex items-center pr-1.5 gap-0.5 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <button onclick="openRenameFolderModal('${safeName}')" title="Renombrar carpeta" class="p-1 rounded hover:bg-zinc-200/30 ${isActive ? 'text-zinc-300 hover:text-white' : 'text-zinc-400 hover:text-[#111111]'}">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </button>
+                            <button onclick="deleteFolder('${safeName}')" title="Eliminar carpeta" class="p-1 rounded hover:bg-red-500/20 ${isActive ? 'text-zinc-300 hover:text-red-300' : 'text-zinc-400 hover:text-red-600'}">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectFolder(folderName) {
+            activeFolder = folderName;
+            document.getElementById('currentFolderHeading').textContent = folderName === 'Todas' ? 'Todas las faces' : `Carpeta: ${folderName}`;
+            renderFolders();
+            renderCatalog();
+        }
+
+        function toggleNewFolderInput(forceState) {
+            const bar = document.getElementById('newFolderBar');
+            const input = document.getElementById('newFolderNameInput');
+            const shouldShow = typeof forceState === 'boolean' ? forceState : bar.classList.contains('hidden');
+
+            if (shouldShow) {
+                bar.classList.remove('hidden');
+                input.value = '';
+                input.focus();
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        function handleNewFolderKey(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                createFolder();
+            } else if (e.key === 'Escape') {
+                toggleNewFolderInput(false);
+            }
+        }
+
+        function createFolder() {
+            const input = document.getElementById('newFolderNameInput');
+            const name = input.value.trim();
+
+            if (!name) return;
+
+            if (folders.some(f => f.toLowerCase() === name.toLowerCase())) {
+                showToast('Esa carpeta ya existe');
+                return;
+            }
+
+            folders.push(name);
+            saveData();
+            toggleNewFolderInput(false);
+            selectFolder(name);
+            showToast(`Carpeta "${name}" creada`);
+        }
+
+        function openRenameFolderModal(folderName) {
+            folderBeingRenamed = folderName;
+            const input = document.getElementById('renameFolderInput');
+            input.value = folderName;
+            document.getElementById('renameFolderModal').classList.remove('hidden');
+            input.focus();
+            input.select();
+        }
+
+        function closeRenameFolderModal() {
+            document.getElementById('renameFolderModal').classList.add('hidden');
+            folderBeingRenamed = null;
+        }
+
+        function confirmRenameFolder(e) {
+            e.preventDefault();
+            if (!folderBeingRenamed) return;
+
+            const newName = document.getElementById('renameFolderInput').value.trim();
+            if (!newName || newName === folderBeingRenamed) {
+                closeRenameFolderModal();
+                return;
+            }
+
+            const idx = folders.indexOf(folderBeingRenamed);
+            if (idx !== -1) {
+                folders[idx] = newName;
+            }
+
+            // Actualizar todas las faces que pertenecían a esa carpeta
+            faces.forEach(face => {
+                if (face.folder === folderBeingRenamed) {
+                    face.folder = newName;
+                }
+            });
+
+            if (activeFolder === folderBeingRenamed) {
+                activeFolder = newName;
+                document.getElementById('currentFolderHeading').textContent = `Carpeta: ${newName}`;
+            }
+
+            saveData();
+            renderFolders();
+            renderCatalog();
+            closeRenameFolderModal();
+            showToast(`Carpeta renombrada a "${newName}"`);
+        }
+
+        function deleteFolder(folderName) {
+            const idx = folders.indexOf(folderName);
+            if (idx === -1) return;
+
+            folders.splice(idx, 1);
+
+            // Reasignar faces huérfanas a la primera carpeta disponible o "General"
+            const fallbackFolder = folders[0] || "General";
+            if (!folders.includes(fallbackFolder)) {
+                folders.push(fallbackFolder);
+            }
+
+            faces.forEach(face => {
+                if (face.folder === folderName) {
+                    face.folder = fallbackFolder;
+                }
+            });
+
+            if (activeFolder === folderName) {
+                activeFolder = 'Todas';
+                document.getElementById('currentFolderHeading').textContent = 'Todas las faces';
+            }
+
+            saveData();
+            renderFolders();
+            renderCatalog();
+            showToast(`Carpeta "${folderName}" eliminada`);
+        }
+
+        // =====================================================================
+        // RENDERIZADO DEL CATÁLOGO DE FACES
+        // =====================================================================
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(n => n[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            const emptyState = document.getElementById('emptyState');
+            const countBadge = document.getElementById('filteredCountBadge');
+            const sortBy = document.getElementById('sortSelect').value;
+
+            let filtered = faces.filter(face => {
+                const matchFolder = activeFolder === 'Todas' || face.folder === activeFolder;
+                const q = searchQuery.toLowerCase().trim();
+                const matchSearch = !q ||
+                    face.name.toLowerCase().includes(q) ||
+                    face.club.toLowerCase().includes(q) ||
+                    face.pesId.toLowerCase().includes(q) ||
+                    face.folder.toLowerCase().includes(q);
+                return matchFolder && matchSearch;
+            });
+
+            if (sortBy === 'recent') {
+                filtered.sort((a, b) => b.id - a.id);
+            } else if (sortBy === 'alpha') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'id') {
+                filtered.sort((a, b) => a.pesId.localeCompare(b.pesId));
+            }
+
+            countBadge.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(face => {
+                const initials = getInitials(face.name);
+                const previewContent = face.imageUrl 
+                    ? `<img src="${face.imageUrl}" alt="${face.name}" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                       <div class="hidden w-full h-full flex-col items-center justify-center bg-[#F8F9FA] text-[#111111]">
+                           <span class="text-2xl font-bold tracking-tight">${initials}</span>
+                           <span class="text-[10px] font-mono text-zinc-400 mt-1">PREVIEW 3D</span>
+                       </div>`
+                    : `<div class="w-full h-full flex flex-col items-center justify-center bg-[#F8F9FA] group-hover:bg-zinc-100/80 transition-colors">
+                           <div class="w-16 h-16 rounded-full bg-white border border-[#E5E5E5] flex items-center justify-center shadow-2xs">
+                               <span class="text-lg font-bold tracking-tight text-[#111111]">${initials}</span>
+                           </div>
+                           <span class="text-[10px] font-mono text-zinc-400 mt-2.5">RENDER // ${face.pesId}</span>
+                       </div>`;
+
+                return `
+                    <article onclick="openDetailModal(${face.id})" class="group cursor-pointer bg-white border border-[#E5E5E5] hover:border-[#111111] rounded-lg overflow-hidden flex flex-col justify-between transition-all">
+                        <div>
+                            <!-- Preview 1:1 -->
+                            <div class="relative aspect-square border-b border-[#E5E5E5] overflow-hidden">
+                                ${previewContent}
+                                
+                                <!-- Etiqueta superior minimalista -->
+                                <div class="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
+                                    <span class="px-2 py-0.5 bg-white/95 backdrop-blur-xs border border-[#E5E5E5] rounded text-[10px] font-medium text-[#111111]">
+                                        ${face.folder}
+                                    </span>
+                                    <span class="px-2 py-0.5 bg-[#111111]/90 text-white rounded text-[10px] font-mono">
+                                        ${face.pesId}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Info -->
+                            <div class="p-4">
+                                <p class="text-xs text-zinc-500 truncate">${face.club}</p>
+                                <h3 class="text-base font-bold text-[#111111] group-hover:text-[#0D9488] transition-colors mt-0.5 truncate">
+                                    ${face.name}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- Footer de Tarjeta -->
+                        <div class="px-4 py-2.5 border-t border-[#E5E5E5] bg-[#F8F9FA]/50 flex items-center justify-between text-xs">
+                            <span class="font-mono text-[11px] text-zinc-400">${face.size}</span>
+                            <span class="font-medium text-[#111111] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+                                Ver ficha
+                                <svg class="w-3 h-3 text-[#0D9488]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </span>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // =====================================================================
+        // MODAL SUBIR / EDITAR FACE
+        // =====================================================================
+        function populateFolderSelect(selectedValue) {
+            const select = document.getElementById('formFolder');
+            select.innerHTML = folders.map(f => 
+                `<option value="${f}" ${f === selectedValue ? 'selected' : ''}>${f}</option>`
+            ).join('');
+        }
+
+        function openUploadModal(faceToEdit = null) {
+            const form = document.getElementById('faceForm');
+            form.reset();
+
+            if (faceToEdit) {
+                document.getElementById('uploadModalTitle').textContent = 'Editar Face';
+                document.getElementById('editFaceId').value = faceToEdit.id;
+                document.getElementById('formName').value = faceToEdit.name;
+                document.getElementById('formPesId').value = faceToEdit.pesId;
+                document.getElementById('formClub').value = faceToEdit.club;
+                populateFolderSelect(faceToEdit.folder);
+                document.getElementById('formImageUrl').value = faceToEdit.imageUrl || '';
+                document.getElementById('formDownloadUrl').value = faceToEdit.downloadUrl || '';
+                document.getElementById('formSize').value = faceToEdit.size || '16.0 MB';
+                document.getElementById('formNotes').value = faceToEdit.notes || '';
+            } else {
+                document.getElementById('uploadModalTitle').textContent = 'Subir Nueva Face al Catálogo';
+                document.getElementById('editFaceId').value = '';
+                const defaultSelected = activeFolder !== 'Todas' ? activeFolder : folders[0];
+                populateFolderSelect(defaultSelected);
+            }
+
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        function handleLocalImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('formImageUrl').value = e.target.result;
+                showToast('Imagen cargada correctamente');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveFaceEntry(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editFaceId').value;
+            const entryData = {
+                name: document.getElementById('formName').value.trim(),
+                pesId: document.getElementById('formPesId').value.trim(),
+                club: document.getElementById('formClub').value.trim(),
+                folder: document.getElementById('formFolder').value,
+                imageUrl: document.getElementById('formImageUrl').value.trim(),
+                downloadUrl: document.getElementById('formDownloadUrl').value.trim(),
+                size: document.getElementById('formSize').value.trim() || '16.0 MB',
+                notes: document.getElementById('formNotes').value.trim() || 'Modelado facial 3D optimizado para eFootball PES 2021 y SP Football Life.'
+            };
+
+            if (editId) {
+                const index = faces.findIndex(f => f.id === Number(editId));
+                if (index !== -1) {
+                    faces[index] = { ...faces[index], ...entryData };
+                }
+                showToast('Face actualizada');
+            } else {
+                const newFace = {
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    ...entryData
+                };
+                faces.unshift(newFace);
+                showToast(`"${newFace.name}" añadida a ${newFace.folder}`);
+            }
+
+            saveData();
+            renderFolders();
+            renderCatalog();
+            closeUploadModal();
+        }
+
+        // =====================================================================
+        // MODAL DETALLE TÉCNICO
+        // =====================================================================
+        function openDetailModal(faceId) {
+            const face = faces.find(f => f.id === faceId);
+            if (!face) return;
+
+            selectedFaceId = face.id;
+
+            document.getElementById('detailFolderBadge').textContent = face.folder;
+            document.getElementById('detailDate').textContent = face.date || '2026';
+            document.getElementById('detailClub').textContent = face.club;
+            document.getElementById('detailName').textContent = face.name;
+            document.getElementById('detailPesId').textContent = face.pesId;
+            document.getElementById('detailNotes').textContent = face.notes;
+            document.getElementById('detailFileSize').textContent = `(${face.size})`;
+            document.getElementById('copyIdLabel').textContent = 'Copiar ID';
+
+            const dlBtn = document.getElementById('detailDownloadBtn');
+            dlBtn.href = face.downloadUrl || '#';
+
+            const previewBox = document.getElementById('detailPreviewContainer');
+            if (face.imageUrl) {
+                previewBox.innerHTML = `<img src="${face.imageUrl}" alt="${face.name}" class="w-full h-full object-cover">`;
+            } else {
+                previewBox.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-4 text-center">
+                        <div class="w-20 h-20 rounded-full bg-white border border-[#E5E5E5] flex items-center justify-center mb-3">
+                            <span class="text-2xl font-bold text-[#111111]">${getInitials(face.name)}</span>
+                        </div>
+                        <span class="font-mono text-xs text-zinc-400">ID: ${face.pesId}</span>
+                    </div>
+                `;
+            }
+
+            setInstallTab('sider');
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            selectedFaceId = null;
+        }
+
+        function setInstallTab(mode) {
+            const face = faces.find(f => f.id === selectedFaceId);
+            if (!face) return;
+
+            const btnSider = document.getElementById('btnTabSider');
+            const btnCpk = document.getElementById('btnTabCpk');
+            const box = document.getElementById('installPathBox');
+
+            if (mode === 'sider') {
+                btnSider.className = 'px-2.5 py-1 text-xs font-medium rounded bg-[#111111] text-white';
+                btnCpk.className = 'px-2.5 py-1 text-xs font-medium rounded bg-[#F8F9FA] text-zinc-600 hover:text-[#111111]';
+                box.textContent = `livecpk\\OPAQ_Faces\\Asset\\model\\character\\face\\real\\${face.pesId}`;
+            } else {
+                btnCpk.className = 'px-2.5 py-1 text-xs font-medium rounded bg-[#111111] text-white';
+                btnSider.className = 'px-2.5 py-1 text-xs font-medium rounded bg-[#F8F9FA] text-zinc-600 hover:text-[#111111]';
+                box.textContent = `eFootball PES 2021\\download\\OPAQ_${face.pesId}.cpk (Regenerar DpFileList.bin)`;
+            }
+        }
+
+        function copyDetailId() {
+            const face = faces.find(f => f.id === selectedFaceId);
+            if (!face) return;
+
+            const temp = document.createElement('input');
+            temp.value = face.pesId;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            document.getElementById('copyIdLabel').textContent = 'Copiado';
+            showToast(`ID ${face.pesId} copiado`);
+        }
+
+        function handleDownloadClick(e) {
+            const face = faces.find(f => f.id === selectedFaceId);
+            if (!face) return;
+
+            if (!face.downloadUrl) {
+                e.preventDefault();
+                showToast(`Descarga demo: OPAQ_${face.pesId}.rar (Agrega tu enlace real en "Editar")`);
+            }
+        }
+
+        function editCurrentFace() {
+            const face = faces.find(f => f.id === selectedFaceId);
+            if (!face) return;
+            closeDetailModal();
+            openUploadModal(face);
+        }
+
+        function deleteCurrentFace() {
+            if (!selectedFaceId) return;
+            faces = faces.filter(f => f.id !== selectedFaceId);
+            saveData();
+            renderFolders();
+            renderCatalog();
+            closeDetailModal();
+            showToast('Face eliminada del catálogo');
+        }
+
+        // =====================================================================
+        // BUSCADOR, PEDIDOS Y UTILIDADES
+        // =====================================================================
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            clearSearchBtn.classList.toggle('hidden', searchQuery.length === 0);
+            renderCatalog();
+        });
+
+        function clearSearch() {
+            searchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            renderCatalog();
+        }
+
+        function resetFilters(e) {
+            if (e) e.preventDefault();
+            clearSearch();
+            selectFolder('Todas');
+        }
+
+        function resetDemoData() {
+            localStorage.removeItem(STORAGE_KEY_FOLDERS);
+            localStorage.removeItem(STORAGE_KEY_FACES);
+            loadData();
+            selectFolder('Todas');
+            showToast('Catálogo demo restaurado');
+        }
+
+        function openRequestModal() {
+            document.getElementById('requestModal').classList.remove('hidden');
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestModal').classList.add('hidden');
+        }
+
+        function submitRequest(e) {
+            e.preventDefault();
+            e.target.reset();
+            closeRequestModal();
+            showToast('Solicitud enviada a OPAQ Modding');
+        }
+
+        let toastTimer;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = msg;
+            toast.classList.remove('translate-y-16', 'opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-16', 'opacity-0');
+            }, 3000);
+        }
+
+        // Cerrar modales con Escape
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeUploadModal();
+                closeDetailModal();
+                closeRenameFolderModal();
+                closeRequestModal();
+            }
+        });
+
+        // Inicializar aplicación
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            updateGlobalStats();
+            renderFolders();
+            renderCatalog();
+        });
+    </script>
+</body>
+</html>
